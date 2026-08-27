@@ -101,8 +101,8 @@ namespace ResourceMonitor.Components
         public void TurnDisplayOff()
         {
             StopCoroutine(FinalSetup());
-            blackCover.SetActive(true);
-            trackedResourcesDisplayElements.Clear();
+            blackCover?.SetActive(true);
+            trackedResourcesDisplayElements?.Clear();
             trackedResourcesDisplayElements = null;
         }
 
