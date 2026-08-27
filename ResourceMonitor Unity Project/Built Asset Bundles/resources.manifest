@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 2424122012
+CRC: 3415701453
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 8aba5f5924c647a57a3afc81e74a7119
+    Hash: 8402826da8d85ce0375b76493e140363
   TypeTreeHash:
     serializedVersion: 2
-    Hash: cc5f3da85b3af1cf32f82c357a769c7f
+    Hash: e7b2f0d7c4e76a7836430ed31a82a32a
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -15,23 +15,11 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 21
   Script: {instanceID: 0}
-- Class: 23
-  Script: {instanceID: 0}
 - Class: 28
-  Script: {instanceID: 0}
-- Class: 33
-  Script: {instanceID: 0}
-- Class: 43
   Script: {instanceID: 0}
 - Class: 48
   Script: {instanceID: 0}
 - Class: 65
-  Script: {instanceID: 0}
-- Class: 74
-  Script: {instanceID: 0}
-- Class: 90
-  Script: {instanceID: 0}
-- Class: 91
   Script: {instanceID: 0}
 - Class: 95
   Script: {instanceID: 0}
@@ -67,17 +55,8 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 224
   Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
 Assets:
-- Assets/animations/DisabledScreen.controller
-- Assets/art/Materials/frame_albedo_enhanced.mat
-- Assets/animations/Welcome.anim
-- Assets/animations/ShowMainScreen.anim
-- Assets/art/frame.blend
-- Assets/art/Material_001.mat
 - Assets/prefabs/ResourceMonitorModel.prefab
-- Assets/prefabs/ResourceMonitorDisplayUI.prefab
-- Assets/animations/Reset.anim
 - Assets/prefabs/ResourceItem.prefab
-- Assets/animations/Canvas.controller
-- Assets/art/frame.fbx
 Dependencies: []
