@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">SN</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Configurations>SN;BZ</Configurations>
+    <Platforms>AnyCPU</Platforms>
+
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>ResourceMonitor</AssemblyName>
+    <RootNamespace>ResourceMonitor</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+
+    <Version>1.0.6</Version>
+    <Product>Resource Monitor</Product>
+    <Authors>WaisieMilliams</Authors>
+    <Copyright>Copyright © 2018</Copyright>
+
+    <!-- Nautilus/GameLibs are published to nuget.org, but restoring from the BepInEx feed as a
+         fallback avoids failures if a package is ever only mirrored there. -->
+    <RestoreAdditionalProjectSources>https://nuget.bepinex.dev/v3/index.json</RestoreAdditionalProjectSources>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'SN' ">
+    <DefineConstants>SUBNAUTICA</DefineConstants>
+    <OutputPath>bin\SN\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'BZ' ">
+    <DefineConstants>BELOWZERO</DefineConstants>
+    <OutputPath>bin\BZ\</OutputPath>
+  </PropertyGroup>
+
+  <!-- Nautilus pulls in BepInEx.Core, Newtonsoft.Json and the publicized game assemblies
+       (Subnautica.GameLibs / SubnauticaZero.GameLibs) transitively, so nothing else needs to
+       be referenced by hand here. ExcludeAssets=runtime stops Nautilus.dll itself from being
+       copied into our output folder, since it's expected to already be installed as its own
+       BepInEx plugin (we still compile against it normally). -->
+  <ItemGroup Condition=" '$(Configuration)' == 'SN' ">
+    <PackageReference Include="Subnautica.Nautilus" Version="1.0.0-pre.53" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'BZ' ">
+    <PackageReference Include="SubnauticaZero.Nautilus" Version="1.0.0-pre.51" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+</Project>

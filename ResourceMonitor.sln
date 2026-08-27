@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceMonitor", "ResourceMonitor\ResourceMonitor.csproj", "{B8E36BC6-EFB5-4100-B160-BFA2602F3B22}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		BZ|Any CPU = BZ|Any CPU
+		SN|Any CPU = SN|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B8E36BC6-EFB5-4100-B160-BFA2602F3B22}.BZ|Any CPU.ActiveCfg = BZ|Any CPU
+		{B8E36BC6-EFB5-4100-B160-BFA2602F3B22}.BZ|Any CPU.Build.0 = BZ|Any CPU
+		{B8E36BC6-EFB5-4100-B160-BFA2602F3B22}.SN|Any CPU.ActiveCfg = SN|Any CPU
+		{B8E36BC6-EFB5-4100-B160-BFA2602F3B22}.SN|Any CPU.Build.0 = SN|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0D77E2E7-5B98-411D-8E3A-3B00BAAB71B2}
+	EndGlobalSection
+EndGlobal
