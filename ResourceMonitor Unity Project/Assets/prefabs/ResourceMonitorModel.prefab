@@ -273,7 +273,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &224283537111287526
 RectTransform:
   m_ObjectHideFlags: 0
@@ -738,18 +738,18 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: be256e7d17a6b9f4ebc34e1635364b93, type: 3}
-    m_FontSize: 40
+    m_FontSize: 60
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
-    m_MaxSize: 50
+    m_MaxSize: 60
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Previous Page
+  m_Text: "\u25C0"
 --- !u!1 &1361127765690372
 GameObject:
   m_ObjectHideFlags: 0
@@ -760,7 +760,6 @@ GameObject:
   m_Component:
   - component: {fileID: 224637249828784064}
   - component: {fileID: 222252806569074914}
-  - component: {fileID: 114263049647069312}
   m_Layer: 0
   m_Name: Title
   m_TagString: Untagged
@@ -795,39 +794,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1361127765690372}
   m_CullTransparentMesh: 0
---- !u!114 &114263049647069312
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1361127765690372}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_FontData:
-    m_Font: {fileID: 12800000, guid: be256e7d17a6b9f4ebc34e1635364b93, type: 3}
-    m_FontSize: 50
-    m_FontStyle: 1
-    m_BestFit: 0
-    m_MinSize: 0
-    m_MaxSize: 50
-    m_Alignment: 1
-    m_AlignByGeometry: 0
-    m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
-    m_LineSpacing: 1
-  m_Text: Resource Monitor
 --- !u!1 &1387476484263176
 GameObject:
   m_ObjectHideFlags: 0
@@ -1010,18 +976,18 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: be256e7d17a6b9f4ebc34e1635364b93, type: 3}
-    m_FontSize: 40
+    m_FontSize: 60
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
-    m_MaxSize: 50
+    m_MaxSize: 60
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Next Page
+  m_Text: "\u25B6"
 --- !u!1 &1438615155978930
 GameObject:
   m_ObjectHideFlags: 0
@@ -1308,7 +1274,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &224586068580846214
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1318,7 +1284,7 @@ RectTransform:
   m_GameObject: {fileID: 1601841405038116}
   m_LocalRotation: {x: -0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.9962179, y: 1.0013653, z: 0.99999785}
+  m_LocalScale: {x: 0.9962179, y: 1.0013653, z: 1}
   m_Children: []
   m_Father: {fileID: 224119884701734190}
   m_RootOrder: 2
