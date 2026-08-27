@@ -10,7 +10,7 @@ namespace ResourceMonitor.Components
     {
         public ResourceMonitorDisplay ResourceMonitorDisplay { get; set; }
         protected bool IsHovered { get; set; }
-        protected string HoverText { get; set; }
+        public string HoverText { get; set; }
         private bool isHoveredOutOfRange;
 
         public virtual void OnDisable()

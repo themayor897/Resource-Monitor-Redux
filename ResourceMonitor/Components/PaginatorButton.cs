@@ -15,7 +15,6 @@ namespace ResourceMonitor.Components
         public void Start()
         {
             text = GetComponent<Text>();
-            HoverText = text.text;
         }
 
         public void OnEnable()

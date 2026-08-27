@@ -419,6 +419,7 @@ namespace ResourceMonitor.Components
             var pb = previousPageGameObject.AddComponent<PaginatorButton>();
             pb.ResourceMonitorDisplay = this;
             pb.AmountToChangePageBy = -1;
+            pb.HoverText = "Previous Page";
 
             nextPageGameObject = paginator.FindChild("NextPage")?.gameObject;
             if (nextPageGameObject == null)
@@ -429,6 +430,7 @@ namespace ResourceMonitor.Components
             var pb2 = nextPageGameObject.AddComponent<PaginatorButton>();
             pb2.ResourceMonitorDisplay = this;
             pb2.AmountToChangePageBy = 1;
+            pb2.HoverText = "Next Page";
 
             pageCounterGameObject = paginator.FindChild("PageCounter")?.gameObject;
             if (pageCounterGameObject == null)
