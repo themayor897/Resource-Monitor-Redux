@@ -188,7 +188,17 @@ namespace ResourceMonitor.Components
             var itemDisplay = Instantiate(EntryPoint.RESOURCE_MONITOR_DISPLAY_ITEM_UI_PREFAB);
             itemDisplay.transform.SetParent(mainScreenItemGrid.transform, false);
             itemDisplay.transform.Find("Text").GetComponent<Text>().text = "x" + amount;
-            itemDisplay.transform.Find("ItemName").GetComponent<Text>().text = Language.main.Get(type);
+
+            string displayName;
+            try
+            {
+                displayName = Language.main.Get(type);
+            }
+            catch
+            {
+                displayName = type.AsString();
+            }
+            itemDisplay.transform.Find("ItemName").GetComponent<Text>().text = displayName;
 
             var itemButton = itemDisplay.AddComponent<ItemButton>();
             itemButton.Type = type;
