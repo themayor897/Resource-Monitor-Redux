@@ -26,10 +26,6 @@ namespace ResourceMonitor.Components
         private float idlePeriodLength = EntryPoint.SETTINGS.IdleTime;
         private float timeSinceLastInteraction = 0f;
         private bool isIdle = false;
-        private float nextColorTransitionCurrentTime;
-        private float transitionIdleTime;
-        private Color currentColor = EntryPoint.SETTINGS.PossibleIdleColors[0];
-        private Color nextColor = EntryPoint.SETTINGS.PossibleIdleColors[1];
         private bool isHovered = false;
         private bool isHoveredOutOfRange = false;
 
@@ -45,7 +41,6 @@ namespace ResourceMonitor.Components
         private GameObject pageCounterGameObject;
         private Text pageCounterText;
         private GameObject idleScreen;
-        private Image idleScreenTitleBackgroundImage;
 
         public void Setup(ResourceMonitorLogic rml)
         {
@@ -60,7 +55,6 @@ namespace ResourceMonitor.Components
                 return;
             }
 
-            CalculateNewColourTransitionTime();
             CalculateNewIdleTime();
             currentPage = 1;
             UpdatePaginator();
@@ -233,31 +227,6 @@ namespace ResourceMonitor.Components
             {
                 ResetIdleTimer();
             }
-
-            if (isIdle == true)
-            {
-                if (nextColorTransitionCurrentTime >= transitionIdleTime)
-                {
-                    nextColorTransitionCurrentTime = 0f;
-                    for (int i = 0; i < EntryPoint.SETTINGS.PossibleIdleColors.Count; i++)
-                    {
-                        if (EntryPoint.SETTINGS.PossibleIdleColors[i] == nextColor)
-                        {
-                            i++;
-                            currentColor = nextColor;
-                            if (i >= EntryPoint.SETTINGS.PossibleIdleColors.Count)
-                            {
-                                i = 0;
-                            }
-                            nextColor = EntryPoint.SETTINGS.PossibleIdleColors[i];
-                            CalculateNewColourTransitionTime();
-                        }
-                    }
-                }
-
-                nextColorTransitionCurrentTime += Time.deltaTime;
-                idleScreenTitleBackgroundImage.color = Color.Lerp(currentColor, nextColor, nextColorTransitionCurrentTime / transitionIdleTime);
-            }
         }
 
         private bool InIdleInteractionRange()
@@ -336,11 +305,6 @@ namespace ResourceMonitor.Components
         public void ResetIdleTimer()
         {
             timeSinceLastInteraction = 0f;
-        }
-
-        private void CalculateNewColourTransitionTime()
-        {
-            transitionIdleTime = EntryPoint.SETTINGS.IdleScreenColorTransitionTime + Random.Range(EntryPoint.SETTINGS.IdleScreenColorTransitionRandomnessLowBound, EntryPoint.SETTINGS.IdleScreenColorTransitionRandomnessHighBound);
         }
 
         public void OnApplicationQuit()
@@ -461,20 +425,6 @@ namespace ResourceMonitor.Components
             if (idleScreen == null)
             {
                 System.Console.WriteLine("[ResourceMonitor] Screen: IdleScreen not found.");
-                return false;
-            }
-
-            var idleScreenTitleBackground = idleScreen.FindChild("AlterraTitleBackground")?.gameObject;
-            if (idleScreenTitleBackground == null)
-            {
-                System.Console.WriteLine("[ResourceMonitor] Screen: IdleScreen Background not found.");
-                return false;
-            }
-
-            idleScreenTitleBackgroundImage = idleScreenTitleBackground.GetComponent<Image>();
-            if (idleScreenTitleBackground == null)
-            {
-                System.Console.WriteLine("[ResourceMonitor] Screen: IdleScreen Background Image not found.");
                 return false;
             }
 

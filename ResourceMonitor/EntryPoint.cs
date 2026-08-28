@@ -1,10 +1,8 @@
-using System;
 using System.IO;
 using System.Reflection;
 using BepInEx;
 using HarmonyLib;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace ResourceMonitor
@@ -78,46 +76,18 @@ namespace ResourceMonitor
         private static SettingsData CreateSettingsIfItDoesntExist()
         {
             var data = new SettingsData();
-            File.WriteAllText(SETTINGS_FILE_LOCATION, JsonConvert.SerializeObject(data, Formatting.Indented, new ColorJsonConverter()));
+            File.WriteAllText(SETTINGS_FILE_LOCATION, JsonConvert.SerializeObject(data, Formatting.Indented));
             return data;
         }
 
         private static SettingsData LoadSettings()
         {
-            return JsonConvert.DeserializeObject<SettingsData>(File.ReadAllText(SETTINGS_FILE_LOCATION), new ColorJsonConverter());
+            return JsonConvert.DeserializeObject<SettingsData>(File.ReadAllText(SETTINGS_FILE_LOCATION));
         }
 
         public static void SaveSettings()
         {
-            File.WriteAllText(SETTINGS_FILE_LOCATION, JsonConvert.SerializeObject(SETTINGS, Formatting.Indented, new ColorJsonConverter()));
-        }
-
-        /**
-        * UnityEngine.Color exposes computed properties (linear, gamma, ...) that return another Color,
-        * which Newtonsoft's default reflection-based serializer misreads as a self-referencing loop.
-        * This converter limits serialization to just the four channel values.
-        */
-        private class ColorJsonConverter : JsonConverter<Color>
-        {
-            public override void WriteJson(JsonWriter writer, Color value, JsonSerializer serializer)
-            {
-                writer.WriteStartObject();
-                writer.WritePropertyName("r"); writer.WriteValue(value.r);
-                writer.WritePropertyName("g"); writer.WriteValue(value.g);
-                writer.WritePropertyName("b"); writer.WriteValue(value.b);
-                writer.WritePropertyName("a"); writer.WriteValue(value.a);
-                writer.WriteEndObject();
-            }
-
-            public override Color ReadJson(JsonReader reader, Type objectType, Color existingValue, bool hasExistingValue, JsonSerializer serializer)
-            {
-                var obj = JObject.Load(reader);
-                return new Color(
-                    obj.Value<float?>("r") ?? 0f,
-                    obj.Value<float?>("g") ?? 0f,
-                    obj.Value<float?>("b") ?? 0f,
-                    obj.Value<float?>("a") ?? 1f);
-            }
+            File.WriteAllText(SETTINGS_FILE_LOCATION, JsonConvert.SerializeObject(SETTINGS, Formatting.Indented));
         }
     }
 }
