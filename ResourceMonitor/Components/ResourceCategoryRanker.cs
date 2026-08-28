@@ -53,8 +53,10 @@ namespace ResourceMonitor.Components
 
         private static bool HasRecipe(TechType type)
         {
-            var ingredients = TechData.GetIngredients(type);
-            return ingredients != null && ingredients.Count > 0;
+            // TechData.entries only holds recipes mods have explicitly registered; vanilla recipes
+            // aren't in there. CraftDataHandler.GetRecipeData covers both modded and vanilla items.
+            var recipe = Nautilus.Handlers.CraftDataHandler.GetRecipeData(type);
+            return recipe != null && recipe.ingredientCount > 0;
         }
 
         private static TechCategory GetCategory(TechType type)
