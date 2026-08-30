@@ -166,6 +166,15 @@ namespace ResourceMonitor.Components
                 return;
             }
 
+#if SUBNAUTICA
+            // Plant pots/wall planters use a StorageContainer purely to hold the seeds/samples
+            // growing in them - that's not a resource stash and shouldn't be tracked.
+            if (sc.GetComponentInParent<Planter>() != null)
+            {
+                return;
+            }
+#endif
+
             foreach (string notTrackedObject in DONT_TRACK_GAMEOBJECTS)
             {
                 if (sc.gameObject.name.ToLower().Contains(notTrackedObject))
@@ -214,9 +223,10 @@ namespace ResourceMonitor.Components
         }
 
         /**
-        * Returns the tracked resources ordered the way the screen displays them: raw resources first,
-        * then basic materials, advanced materials, electronics, food, then everything else, alphabetical
-        * within each group. See ResourceCategoryRanker for how the grouping is determined.
+        * Returns the tracked resources ordered the way the screen displays them, per the tier
+        * order in ResourceCategoryRanker. Within raw/basic/electronics/advanced materials, items
+        * follow the hand-audited PRIORITY order (a modded item with no explicit priority sorts by
+        * recipe usage count, then alphabetically); every other tier is purely alphabetical.
         */
         public List<TrackedResource> GetSortedTrackedResources()
         {
@@ -225,7 +235,20 @@ namespace ResourceMonitor.Components
             {
                 var rankA = ResourceCategoryRanker.GetRank(a.TechType);
                 var rankB = ResourceCategoryRanker.GetRank(b.TechType);
-                return rankA != rankB ? rankA.CompareTo(rankB) : string.Compare(Language.main.Get(a.TechType), Language.main.Get(b.TechType));
+                if (rankA != rankB) return rankA.CompareTo(rankB);
+
+                if (rankA <= ResourceCategoryRanker.ADVANCED_MATERIALS)
+                {
+                    var priorityA = ResourceCategoryRanker.GetPriority(a.TechType);
+                    var priorityB = ResourceCategoryRanker.GetPriority(b.TechType);
+                    if (priorityA != priorityB) return priorityA.CompareTo(priorityB);
+
+                    var usageA = ResourceCategoryRanker.GetRecipeUsageCount(a.TechType);
+                    var usageB = ResourceCategoryRanker.GetRecipeUsageCount(b.TechType);
+                    if (usageA != usageB) return usageB.CompareTo(usageA);
+                }
+
+                return string.Compare(Language.main.Get(a.TechType), Language.main.Get(b.TechType));
             });
             return sorted;
         }
@@ -242,10 +265,10 @@ namespace ResourceMonitor.Components
 
                 if (newAmount <= 0)
                 {
-                    // Once a raw/basic/advanced material or electronics item has been seen, the user can
-                    // choose (Mod Options > Resource Monitor) to keep it listed at x0 instead of it
-                    // disappearing once the last one is used/removed.
-                    if (EntryPoint.SETTINGS.ShowZeroAmountResources && ResourceCategoryRanker.IsTrackableMaterial(item))
+                    // Each material tier has its own Mod Options toggle for whether a depleted
+                    // item stays listed at x0 instead of disappearing once the last one is
+                    // used/removed.
+                    if (ShouldRetainAtZero(item))
                     {
                         newAmount = 0;
                         trackedResource.Amount = 0;
@@ -266,6 +289,23 @@ namespace ResourceMonitor.Components
                 }
 
                 rmd?.ItemModified(item, newAmount);
+            }
+        }
+
+        private static bool ShouldRetainAtZero(TechType item)
+        {
+            switch (ResourceCategoryRanker.GetRank(item))
+            {
+                case ResourceCategoryRanker.RAW_MATERIALS:
+                    return EntryPoint.SETTINGS.ShowZeroAmountRawMaterials;
+                case ResourceCategoryRanker.BASIC_MATERIALS:
+                    return EntryPoint.SETTINGS.ShowZeroAmountBasicMaterials;
+                case ResourceCategoryRanker.ADVANCED_MATERIALS:
+                    return EntryPoint.SETTINGS.ShowZeroAmountAdvancedMaterials;
+                case ResourceCategoryRanker.ELECTRONICS:
+                    return EntryPoint.SETTINGS.ShowZeroAmountElectronics;
+                default:
+                    return false;
             }
         }
 

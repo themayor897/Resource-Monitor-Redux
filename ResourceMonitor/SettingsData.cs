@@ -6,7 +6,10 @@ namespace ResourceMonitor
         public bool AllowSelectingItemsFromMonitor = true;
 
         // Also editable in-game via Mod Options > Resource Monitor.
-        public bool ShowZeroAmountResources = false;
+        public bool ShowZeroAmountRawMaterials = true;
+        public bool ShowZeroAmountBasicMaterials = false;
+        public bool ShowZeroAmountAdvancedMaterials = false;
+        public bool ShowZeroAmountElectronics = false;
 
         public float MaxInteractionDistance = 2.5f;
 
