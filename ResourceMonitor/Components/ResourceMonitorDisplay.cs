@@ -19,6 +19,12 @@ namespace ResourceMonitor.Components
         private static readonly float MAIN_SCREEN_ANIMATION_TIME = 1.2f;
         private static readonly List<ResourceMonitorDisplay> ActiveDisplays = new List<ResourceMonitorDisplay>();
 
+        // IconCircle/ItemHolder are authored at a fixed 150px size in the prefab, but the grid's
+        // cell size is computed dynamically (bigger with fewer items, smaller on a full page) -
+        // without this, the icon stays a constant pixel size and looks tiny in a full grid.
+        private const float ICON_FILL_RATIO = 0.75f;
+        private const float ICON_CIRCLE_BASE_SIZE = 150f;
+
         /**
         * Called when Mod Options > Resource Monitor > Items per page changes, so a screen already
         * on screen picks up the new value immediately instead of only on its next natural redraw
@@ -273,7 +279,12 @@ namespace ResourceMonitor.Components
         {
             var itemDisplay = Instantiate(EntryPoint.RESOURCE_MONITOR_DISPLAY_ITEM_UI_PREFAB);
             itemDisplay.transform.SetParent(mainScreenItemGrid.transform, false);
-            itemDisplay.transform.Find("Text").GetComponent<Text>().text = "x" + amount;
+
+            var iconScale = (mainScreenItemGridLayout.cellSize.x * ICON_FILL_RATIO) / ICON_CIRCLE_BASE_SIZE;
+            itemDisplay.transform.Find("IconCircle").localScale = Vector3.one * iconScale;
+            itemDisplay.transform.Find("ItemHolder").localScale = Vector3.one * iconScale;
+
+            itemDisplay.transform.Find("IconCircle/Text").GetComponent<Text>().text = "x" + amount;
 
             string displayName;
             try
