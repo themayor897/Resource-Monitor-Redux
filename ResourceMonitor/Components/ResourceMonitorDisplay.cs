@@ -17,7 +17,24 @@ namespace ResourceMonitor.Components
     {
         private static readonly float WELCOME_ANIMATION_TIME = 8.5f;
         private static readonly float MAIN_SCREEN_ANIMATION_TIME = 1.2f;
-        private static readonly int ITEMS_PER_PAGE = 12;
+        private static readonly List<ResourceMonitorDisplay> ActiveDisplays = new List<ResourceMonitorDisplay>();
+
+        /**
+        * Called when Mod Options > Resource Monitor > Items per page changes, so a screen already
+        * on screen picks up the new value immediately instead of only on its next natural redraw
+        * (changing pages, re-approaching it, etc).
+        */
+        public static void RefreshAllForItemsPerPageChange()
+        {
+            foreach (var display in ActiveDisplays)
+            {
+                display.DrawPage(display.currentPage);
+            }
+        }
+
+        private int ItemsPerPage => ResourceMonitorLogic.IsLargeMonitor
+            ? EntryPoint.SETTINGS.ItemsPerPageLargeMonitor
+            : EntryPoint.SETTINGS.ItemsPerPageSmallMonitor;
 
         public ResourceMonitorLogic ResourceMonitorLogic { get; private set; }
         private Dictionary<TechType, GameObject> trackedResourcesDisplayElements;
@@ -36,6 +53,7 @@ namespace ResourceMonitor.Components
         private GameObject mainScreen;
         private GameObject mainScreensCover;
         private GameObject mainScreenItemGrid;
+        private GridLayoutGroup mainScreenItemGridLayout;
         private GameObject previousPageGameObject;
         private GameObject nextPageGameObject;
         private GameObject pageCounterGameObject;
@@ -55,6 +73,7 @@ namespace ResourceMonitor.Components
                 return;
             }
 
+            ActiveDisplays.Add(this);
             CalculateNewIdleTime();
             currentPage = 1;
             UpdatePaginator();
@@ -90,10 +109,17 @@ namespace ResourceMonitor.Components
             blackCover.SetActive(false);
             mainScreen.SetActive(true);
             animator.enabled = false;
+
+            // The DrawPage(1) call above ran while mainScreen (and so MainGrid) was still
+            // inactive, so GridLayoutGroup never actually repositioned anything to match the
+            // cell size/column count UpdateGridLayout computed - Unity's layout system doesn't
+            // process inactive hierarchies. Redraw now that it's actually active.
+            DrawPage(currentPage);
         }
 
         public void TurnDisplayOff()
         {
+            ActiveDisplays.Remove(this);
             StopCoroutine(FinalSetup());
             blackCover?.SetActive(true);
             trackedResourcesDisplayElements?.Clear();
@@ -113,7 +139,7 @@ namespace ResourceMonitor.Components
 
         private void CalculateNewMaxPages()
         {
-            maxPage = Mathf.CeilToInt((ResourceMonitorLogic.TrackedResources.Count - 1) / ITEMS_PER_PAGE) + 1;
+            maxPage = Mathf.CeilToInt((ResourceMonitorLogic.TrackedResources.Count - 1) / ItemsPerPage) + 1;
             if (currentPage > maxPage)
             {
                 currentPage = maxPage;
@@ -137,15 +163,19 @@ namespace ResourceMonitor.Components
                 currentPage = maxPage;
             }
 
+            var itemsPerPage = ItemsPerPage;
             var sortedResources = ResourceMonitorLogic.GetSortedTrackedResources();
 
-            var startingPosition = (currentPage - 1) * ITEMS_PER_PAGE;
-            var endingPosition = startingPosition + ITEMS_PER_PAGE;
+            var startingPosition = (currentPage - 1) * itemsPerPage;
+            var endingPosition = startingPosition + itemsPerPage;
             if (endingPosition > sortedResources.Count)
             {
                 endingPosition = sortedResources.Count;
             }
 
+            // Size cells to how many items are actually on this page, not the page's max
+            // capacity, so icons stay as large as possible and only shrink once the page fills up.
+            UpdateGridLayout(endingPosition - startingPosition);
             ClearPage();
             for (var i = startingPosition; i < endingPosition; i++)
             {
@@ -162,6 +192,68 @@ namespace ResourceMonitor.Components
             pageCounterText.text = $"Page {currentPage} Of {maxPage}";
             previousPageGameObject.SetActive(currentPage != 1);
             nextPageGameObject.SetActive(currentPage != maxPage);
+        }
+
+        /**
+        * Picks a column count and cell size that fit itemsPerPage items into MainGrid's actual
+        * available area as close to square as possible, so the configurable items-per-page
+        * setting (Mod Options > Resource Monitor) still lays out cleanly instead of overflowing
+        * or under-filling the fixed 200x200 cell size the prefab was originally authored with.
+        */
+        private const int GRID_TOP_PADDING = 20;
+
+        private void UpdateGridLayout(int itemsPerPage)
+        {
+            var padding = mainScreenItemGridLayout.padding;
+            padding.top = GRID_TOP_PADDING;
+            mainScreenItemGridLayout.padding = padding;
+
+            var gridRect = ((RectTransform)mainScreenItemGrid.transform).rect;
+            var availableWidth = gridRect.width - padding.left - padding.right;
+            var availableHeight = gridRect.height - padding.top - padding.bottom;
+            if (availableWidth <= 0f || availableHeight <= 0f || itemsPerPage <= 0)
+            {
+                return;
+            }
+
+            var spacing = mainScreenItemGridLayout.spacing;
+            var bestColumns = 1;
+            var bestCellSize = 0f;
+
+            // Try every column count and keep whichever yields the largest (still-square) cell
+            // size; on a tie, prefer the count that divides itemsPerPage evenly (no half-empty
+            // last row) over one that happens to match the same cell size less cleanly.
+            for (var columns = 1; columns <= itemsPerPage; columns++)
+            {
+                var rows = Mathf.CeilToInt((float)itemsPerPage / columns);
+                var cellWidth = (availableWidth - spacing.x * (columns - 1)) / columns;
+                var cellHeight = (availableHeight - spacing.y * (rows - 1)) / rows;
+                var cellSize = Mathf.Min(cellWidth, cellHeight);
+                if (cellSize <= 0f)
+                {
+                    continue;
+                }
+
+                var better = cellSize > bestCellSize + 0.01f;
+                var tie = !better && cellSize >= bestCellSize - 0.01f;
+                var fewerLeftovers = tie && LeftoverSlots(itemsPerPage, columns) < LeftoverSlots(itemsPerPage, bestColumns);
+
+                if (better || fewerLeftovers)
+                {
+                    bestCellSize = cellSize;
+                    bestColumns = columns;
+                }
+            }
+
+            mainScreenItemGridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            mainScreenItemGridLayout.constraintCount = bestColumns;
+            mainScreenItemGridLayout.cellSize = new Vector2(bestCellSize, bestCellSize);
+        }
+
+        private static int LeftoverSlots(int itemsPerPage, int columns)
+        {
+            var remainder = itemsPerPage % columns;
+            return remainder == 0 ? 0 : columns - remainder;
         }
 
         private void ClearPage()
@@ -295,6 +387,11 @@ namespace ResourceMonitor.Components
             CalculateNewIdleTime();
             mainScreen.SetActive(true);
             idleScreen.SetActive(false);
+
+            // Item changes that happened while mainScreen was inactive (idle) ran DrawPage
+            // against an inactive hierarchy, so GridLayoutGroup never actually laid out the
+            // new icons. Redraw now that it's active again to fix any resulting overlap.
+            DrawPage(currentPage);
         }
         
         private void CalculateNewIdleTime()
@@ -377,6 +474,13 @@ namespace ResourceMonitor.Components
                 return false;
             }
 
+            mainScreenItemGridLayout = mainScreenItemGrid.GetComponent<GridLayoutGroup>();
+            if (mainScreenItemGridLayout == null)
+            {
+                System.Console.WriteLine("[ResourceMonitor] Screen: Main Screen Item Grid has no GridLayoutGroup.");
+                return false;
+            }
+
             var paginator = actualMainScreen.FindChild("Paginator")?.gameObject;
             if (paginator == null)
             {
@@ -384,7 +488,7 @@ namespace ResourceMonitor.Components
                 return false;
             }
 
-            previousPageGameObject = paginator.FindChild("PreviousPage")?.gameObject;
+            previousPageGameObject = actualMainScreen.FindChild("PreviousPage")?.gameObject;
             if (previousPageGameObject == null)
             {
                 System.Console.WriteLine("[ResourceMonitor] Screen: Previous Page GameObject not found.");
@@ -396,7 +500,7 @@ namespace ResourceMonitor.Components
             pb.AmountToChangePageBy = -1;
             pb.HoverText = "Previous Page";
 
-            nextPageGameObject = paginator.FindChild("NextPage")?.gameObject;
+            nextPageGameObject = actualMainScreen.FindChild("NextPage")?.gameObject;
             if (nextPageGameObject == null)
             {
                 System.Console.WriteLine("[ResourceMonitor] Screen: Next Page GameObject not found.");
@@ -428,7 +532,25 @@ namespace ResourceMonitor.Components
                 return false;
             }
 
+            AddSpinToLogo(welcomeScreen);
+            AddSpinToLogo(idleScreen);
+
             return true;
+        }
+
+        private static void AddSpinToLogo(GameObject screen)
+        {
+            var logo = screen.FindChild("AlterraTitleBackground")?.gameObject;
+            if (logo == null)
+            {
+                System.Console.WriteLine($"[ResourceMonitor] Screen: AlterraTitleBackground not found under {screen.name}, logo won't spin.");
+                return;
+            }
+
+            if (logo.GetComponent<SpinningLogo>() == null)
+            {
+                logo.AddComponent<SpinningLogo>();
+            }
         }
     }
 }

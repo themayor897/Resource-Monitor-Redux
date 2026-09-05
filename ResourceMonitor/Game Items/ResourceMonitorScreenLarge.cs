@@ -16,7 +16,7 @@ namespace ResourceMonitor.Game_Items
 
         public static void Register()
         {
-            ResourceMonitorScreenGeneric.Register(CLASS_ID, NICE_NAME, DESCRIPTION, ICON_FILE_NAME, INGREDIENTS_REQUIRED, SCALE);
+            ResourceMonitorScreenGeneric.Register(CLASS_ID, NICE_NAME, DESCRIPTION, ICON_FILE_NAME, INGREDIENTS_REQUIRED, SCALE, isLarge: true);
         }
     }
 }

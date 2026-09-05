@@ -11,6 +11,9 @@ namespace ResourceMonitor
         public bool ShowZeroAmountAdvancedMaterials = false;
         public bool ShowZeroAmountElectronics = false;
 
+        public int ItemsPerPageSmallMonitor = 8;
+        public int ItemsPerPageLargeMonitor = 15;
+
         public float MaxInteractionDistance = 2.5f;
 
         public float MaxInteractionIdlePageDistance = 5f;

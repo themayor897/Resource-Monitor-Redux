@@ -29,6 +29,11 @@ namespace ResourceMonitor.Components
 
         public Dictionary<TechType, TrackedResource> TrackedResources { private set; get; } = new Dictionary<TechType, TrackedResource>();
         public bool IsBeingDeleted { get; private set; } = false;
+        // Plain field (not an auto-property) because Nautilus clones the cached prefab via
+        // Object.Instantiate() when the player actually places one; Unity's serializer only
+        // copies public fields across that clone, not auto-property backing fields, so this
+        // would silently reset to false on every placed instance if it stayed a property.
+        public bool IsLargeMonitor;
         private ResourceMonitorDisplay rmd;
         private GameObject seaBase;
         private float timerTillNextPickup = .0f;

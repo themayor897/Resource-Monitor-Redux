@@ -1,4 +1,5 @@
 using Nautilus.Options;
+using UnityEngine;
 
 namespace ResourceMonitor
 {
@@ -12,6 +13,11 @@ namespace ResourceMonitor
         public const string SHOW_ZERO_AMOUNT_BASIC_MATERIALS_ID = "ShowZeroAmountBasicMaterials";
         public const string SHOW_ZERO_AMOUNT_ADVANCED_MATERIALS_ID = "ShowZeroAmountAdvancedMaterials";
         public const string SHOW_ZERO_AMOUNT_ELECTRONICS_ID = "ShowZeroAmountElectronics";
+        public const string ITEMS_PER_PAGE_SMALL_MONITOR_ID = "ItemsPerPageSmallMonitor";
+        public const string ITEMS_PER_PAGE_LARGE_MONITOR_ID = "ItemsPerPageLargeMonitor";
+
+        private const int MIN_ITEMS_PER_PAGE = 4;
+        private const int MAX_ITEMS_PER_PAGE = 40;
 
         public ResourceMonitorOptions() : base("Resource Monitor")
         {
@@ -39,6 +45,22 @@ namespace ResourceMonitor
                 EntryPoint.SETTINGS.ShowZeroAmountElectronics,
                 "Once an electronics item has been seen, keep it on the screen showing x0 instead of removing it once none remain."));
 
+            AddItem(ModSliderOption.Create(
+                ITEMS_PER_PAGE_SMALL_MONITOR_ID,
+                "Items per page (small monitor)",
+                MIN_ITEMS_PER_PAGE,
+                MAX_ITEMS_PER_PAGE,
+                EntryPoint.SETTINGS.ItemsPerPageSmallMonitor,
+                tooltip: "How many items are shown per page on the small Resource Monitor Screen."));
+
+            AddItem(ModSliderOption.Create(
+                ITEMS_PER_PAGE_LARGE_MONITOR_ID,
+                "Items per page (large monitor)",
+                MIN_ITEMS_PER_PAGE,
+                MAX_ITEMS_PER_PAGE,
+                EntryPoint.SETTINGS.ItemsPerPageLargeMonitor,
+                tooltip: "How many items are shown per page on the large Resource Monitor Screen."));
+
             OnChanged += Options_OnChanged;
         }
 
@@ -65,6 +87,23 @@ namespace ResourceMonitor
                 }
 
                 EntryPoint.SaveSettings();
+            }
+            else if (e is SliderChangedEventArgs sliderArgs)
+            {
+                switch (e.Id)
+                {
+                    case ITEMS_PER_PAGE_SMALL_MONITOR_ID:
+                        EntryPoint.SETTINGS.ItemsPerPageSmallMonitor = Mathf.RoundToInt(sliderArgs.Value);
+                        break;
+                    case ITEMS_PER_PAGE_LARGE_MONITOR_ID:
+                        EntryPoint.SETTINGS.ItemsPerPageLargeMonitor = Mathf.RoundToInt(sliderArgs.Value);
+                        break;
+                    default:
+                        return;
+                }
+
+                EntryPoint.SaveSettings();
+                Components.ResourceMonitorDisplay.RefreshAllForItemsPerPageChange();
             }
         }
     }

@@ -13,13 +13,13 @@ namespace ResourceMonitor.Game_Items
     */
     public static class ResourceMonitorScreenGeneric
     {
-        public static void Register(string classId, string friendlyName, string description, string iconFileName, int numberOfIngredientsRequired, Vector3? scale)
+        public static void Register(string classId, string friendlyName, string description, string iconFileName, int numberOfIngredientsRequired, Vector3? scale, bool isLarge)
         {
             var info = PrefabInfo.WithTechType(classId, friendlyName, description)
                 .WithIcon(ImageUtils.LoadSpriteFromFile(Path.Combine(EntryPoint.ASSETS_FOLDER_LOCATION, iconFileName)));
 
             var prefab = new CustomPrefab(info);
-            prefab.SetGameObject(() => BuildGameObject(info, scale));
+            prefab.SetGameObject(() => BuildGameObject(info, scale, isLarge));
             prefab.SetPdaGroupCategory(TechGroup.InteriorModules, TechCategory.InteriorModule);
             prefab.SetRecipe(new RecipeData
             {
@@ -34,7 +34,7 @@ namespace ResourceMonitor.Game_Items
             prefab.Register();
         }
 
-        private static GameObject BuildGameObject(PrefabInfo info, Vector3? scale)
+        private static GameObject BuildGameObject(PrefabInfo info, Vector3? scale, bool isLarge)
         {
             var screen = Object.Instantiate(EntryPoint.RESOURCE_MONITOR_DISPLAY_MODEL);
             var screenModel = screen.transform.GetChild(0).gameObject;
@@ -54,7 +54,7 @@ namespace ResourceMonitor.Game_Items
 
             screen.AddComponent<ConstructableBounds>().bounds = new OrientedBounds(new Vector3(-0.1f, -0.1f, 0f), new Quaternion(0, 0, 0, 0), new Vector3(0.9f, 0.5f, 0f));
             screen.AddComponent<VFXSurface>();
-            screen.AddComponent<Components.ResourceMonitorLogic>();
+            screen.AddComponent<Components.ResourceMonitorLogic>().IsLargeMonitor = isLarge;
 
             if (scale.HasValue)
             {
