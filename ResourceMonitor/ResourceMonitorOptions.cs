@@ -16,8 +16,11 @@ namespace ResourceMonitor
         public const string ITEMS_PER_PAGE_SMALL_MONITOR_ID = "ItemsPerPageSmallMonitor";
         public const string ITEMS_PER_PAGE_LARGE_MONITOR_ID = "ItemsPerPageLargeMonitor";
 
-        private const int MIN_ITEMS_PER_PAGE = 4;
-        private const int MAX_ITEMS_PER_PAGE = 40;
+        private const int MIN_ITEMS_PER_PAGE_LARGE_MONITOR = 4;
+        private const int MAX_ITEMS_PER_PAGE_LARGE_MONITOR = 28;
+
+        private const int MIN_ITEMS_PER_PAGE_SMALL_MONITOR = 4;
+        private const int MAX_ITEMS_PER_PAGE_SMALL_MONITOR = 21;
 
         public ResourceMonitorOptions() : base("Resource Monitor")
         {
@@ -48,18 +51,18 @@ namespace ResourceMonitor
             AddItem(ModSliderOption.Create(
                 ITEMS_PER_PAGE_SMALL_MONITOR_ID,
                 "Items per page (small monitor)",
-                MIN_ITEMS_PER_PAGE,
-                MAX_ITEMS_PER_PAGE,
+                MIN_ITEMS_PER_PAGE_SMALL_MONITOR,
+                MAX_ITEMS_PER_PAGE_SMALL_MONITOR,
                 EntryPoint.SETTINGS.ItemsPerPageSmallMonitor,
-                tooltip: "How many items are shown per page on the small Resource Monitor Screen."));
+                tooltip: "How many items are shown per page on the small Resource Monitor Screen (default: 8)."));
 
             AddItem(ModSliderOption.Create(
                 ITEMS_PER_PAGE_LARGE_MONITOR_ID,
                 "Items per page (large monitor)",
-                MIN_ITEMS_PER_PAGE,
-                MAX_ITEMS_PER_PAGE,
+                MIN_ITEMS_PER_PAGE_LARGE_MONITOR,
+                MAX_ITEMS_PER_PAGE_LARGE_MONITOR,
                 EntryPoint.SETTINGS.ItemsPerPageLargeMonitor,
-                tooltip: "How many items are shown per page on the large Resource Monitor Screen."));
+                tooltip: "How many items are shown per page on the large Resource Monitor Screen (default: 18)."));
 
             OnChanged += Options_OnChanged;
         }

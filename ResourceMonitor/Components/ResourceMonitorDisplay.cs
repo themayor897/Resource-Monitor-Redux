@@ -25,6 +25,15 @@ namespace ResourceMonitor.Components
         private const float ICON_FILL_RATIO = 0.75f;
         private const float ICON_CIRCLE_BASE_SIZE = 150f;
 
+        // Icons shouldn't keep growing just because very few items are tracked - cap their size
+        // at whatever they'd be with a reasonably full two-row page, per monitor size.
+        private const int MAX_ICON_SCALE_REFERENCE_ITEMS_LARGE = 10;
+        private const int MAX_ICON_SCALE_REFERENCE_ITEMS_SMALL = 8;
+
+        private float MaxIconCellSize => ComputeBestCellSize(
+            ResourceMonitorLogic.IsLargeMonitor ? MAX_ICON_SCALE_REFERENCE_ITEMS_LARGE : MAX_ICON_SCALE_REFERENCE_ITEMS_SMALL,
+            out _);
+
         /**
         * Called when Mod Options > Resource Monitor > Items per page changes, so a screen already
         * on screen picks up the new value immediately instead of only on its next natural redraw
@@ -214,17 +223,37 @@ namespace ResourceMonitor.Components
             padding.top = GRID_TOP_PADDING;
             mainScreenItemGridLayout.padding = padding;
 
+            var bestCellSize = ComputeBestCellSize(itemsPerPage, out var bestColumns);
+            if (bestCellSize <= 0f)
+            {
+                return;
+            }
+
+            mainScreenItemGridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            mainScreenItemGridLayout.constraintCount = bestColumns;
+            mainScreenItemGridLayout.cellSize = new Vector2(bestCellSize, bestCellSize);
+        }
+
+        /**
+        * Picks the column count and cell size that fit itemsPerPage items into MainGrid's actual
+        * available area as close to square as possible. Shared by UpdateGridLayout (for the real
+        * page) and the icon-scale cap (for a hypothetical reference item count).
+        */
+        private float ComputeBestCellSize(int itemsPerPage, out int bestColumns)
+        {
+            bestColumns = 1;
+            var bestCellSize = 0f;
+
+            var padding = mainScreenItemGridLayout.padding;
             var gridRect = ((RectTransform)mainScreenItemGrid.transform).rect;
             var availableWidth = gridRect.width - padding.left - padding.right;
             var availableHeight = gridRect.height - padding.top - padding.bottom;
             if (availableWidth <= 0f || availableHeight <= 0f || itemsPerPage <= 0)
             {
-                return;
+                return 0f;
             }
 
             var spacing = mainScreenItemGridLayout.spacing;
-            var bestColumns = 1;
-            var bestCellSize = 0f;
 
             // Try every column count and keep whichever yields the largest (still-square) cell
             // size; on a tie, prefer the count that divides itemsPerPage evenly (no half-empty
@@ -251,15 +280,19 @@ namespace ResourceMonitor.Components
                 }
             }
 
-            mainScreenItemGridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            mainScreenItemGridLayout.constraintCount = bestColumns;
-            mainScreenItemGridLayout.cellSize = new Vector2(bestCellSize, bestCellSize);
+            return bestCellSize;
         }
 
         private static int LeftoverSlots(int itemsPerPage, int columns)
         {
             var remainder = itemsPerPage % columns;
             return remainder == 0 ? 0 : columns - remainder;
+        }
+
+        private static void ScaleAboutOrigin(RectTransform rect, float sizeScale, float positionScale)
+        {
+            rect.localScale = Vector3.one * sizeScale;
+            rect.anchoredPosition *= positionScale;
         }
 
         private void ClearPage()
@@ -280,9 +313,23 @@ namespace ResourceMonitor.Components
             var itemDisplay = Instantiate(EntryPoint.RESOURCE_MONITOR_DISPLAY_ITEM_UI_PREFAB);
             itemDisplay.transform.SetParent(mainScreenItemGrid.transform, false);
 
-            var iconScale = (mainScreenItemGridLayout.cellSize.x * ICON_FILL_RATIO) / ICON_CIRCLE_BASE_SIZE;
-            itemDisplay.transform.Find("IconCircle").localScale = Vector3.one * iconScale;
-            itemDisplay.transform.Find("ItemHolder").localScale = Vector3.one * iconScale;
+            // IconCircle, ItemHolder, and ItemName are all siblings positioned relative to a
+            // shared center point, authored to line up correctly at scale 1. Scaling only one of
+            // them (e.g. just the icon, or just the name) breaks that arrangement at any other
+            // scale, so all three need their position - not just their size - scaled together as
+            // a single rigid group around that shared origin.
+            var cappedCellSize = Mathf.Min(mainScreenItemGridLayout.cellSize.x, MaxIconCellSize);
+            var iconScale = (cappedCellSize * ICON_FILL_RATIO) / ICON_CIRCLE_BASE_SIZE;
+            ScaleAboutOrigin((RectTransform)itemDisplay.transform.Find("IconCircle"), iconScale, iconScale);
+            ScaleAboutOrigin((RectTransform)itemDisplay.transform.Find("ItemHolder"), iconScale, iconScale);
+
+            // The name's own text size still scales fully with the icon (stays legible/proportional),
+            // but its distance from the icon never shrinks below what's authored in Unity - only
+            // ever grows further out when the icon scales up past its base size. A pure
+            // proportional gap looks fine in Unity's static preview (which only ever shows scale 1)
+            // but reads as cramped once icons are actually scaled down below that at runtime.
+            var namePositionScale = Mathf.Max(iconScale, 1f);
+            ScaleAboutOrigin((RectTransform)itemDisplay.transform.Find("ItemName"), iconScale, namePositionScale);
 
             itemDisplay.transform.Find("IconCircle/Text").GetComponent<Text>().text = "x" + amount;
 
