@@ -22,7 +22,7 @@ namespace ResourceMonitor
         private const int MIN_ITEMS_PER_PAGE_SMALL_MONITOR = 4;
         private const int MAX_ITEMS_PER_PAGE_SMALL_MONITOR = 21;
 
-        public ResourceMonitorOptions() : base("Resource Monitor")
+        public ResourceMonitorOptions() : base("Resource Monitor Redux")
         {
             AddItem(ModToggleOption.Create(
                 SHOW_ZERO_AMOUNT_RAW_MATERIALS_ID,

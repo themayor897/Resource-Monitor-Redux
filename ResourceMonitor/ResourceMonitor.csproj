@@ -15,7 +15,7 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 
     <Version>1.0.6</Version>
-    <Product>Resource Monitor</Product>
+    <Product>Resource Monitor Redux</Product>
     <Authors>WaisieMilliams</Authors>
     <Copyright>Copyright © 2018</Copyright>
 

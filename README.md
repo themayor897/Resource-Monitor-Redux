@@ -1,6 +1,6 @@
 Nexus: https://www.nexusmods.com/subnautica/mods/166
 
-# Subnautica Resource Monitor Game Modification
+# Subnautica Resource Monitor Redux Game Modification
 A mod for the game Subnautica. Adds two new interior modules to the game that when placed will keep track of all items held in storage containers within the base.
 
 ![](https://i.imgur.com/AHkDRYk.jpg)

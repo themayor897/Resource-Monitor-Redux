@@ -7,12 +7,12 @@ using UnityEngine;
 
 namespace ResourceMonitor
 {
-    [BepInPlugin(GUID, "Resource Monitor", VERSION)]
+    [BepInPlugin(GUID, "Resource Monitor Redux", VERSION)]
     [BepInDependency("com.snmodding.nautilus")]
     public class EntryPoint : BaseUnityPlugin
     {
         public const string GUID = "taylor.brett.ResourceMonitor.mod";
-        public const string VERSION = "1.0.6";
+        public const string VERSION = "2.0.0";
 
         public static readonly string MOD_FOLDER_LOCATION = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static readonly string ASSETS_FOLDER_LOCATION = Path.Combine(MOD_FOLDER_LOCATION, "Assets");
@@ -38,7 +38,7 @@ namespace ResourceMonitor
 
             Nautilus.Handlers.OptionsPanelHandler.RegisterModOptions(new ResourceMonitorOptions());
 
-            Logger.LogInfo("Resource Monitor loaded.");
+            Logger.LogInfo("Resource Monitor Redux loaded.");
         }
 
         private void LoadAssets()
