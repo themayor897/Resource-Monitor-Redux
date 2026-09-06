@@ -15,12 +15,28 @@ namespace ResourceMonitor
         public const string SHOW_ZERO_AMOUNT_ELECTRONICS_ID = "ShowZeroAmountElectronics";
         public const string ITEMS_PER_PAGE_SMALL_MONITOR_ID = "ItemsPerPageSmallMonitor";
         public const string ITEMS_PER_PAGE_LARGE_MONITOR_ID = "ItemsPerPageLargeMonitor";
+        public const string ALLOW_SELECTING_ITEMS_ID = "AllowSelectingItemsFromMonitor";
+        public const string ENABLE_IDLE_ID = "EnableIdle";
+        public const string IDLE_TIME_ID = "IdleTime";
+        public const string IDLE_TIME_RANDOMNESS_LOW_BOUND_ID = "IdleTimeRandomnessLowBound";
+        public const string IDLE_TIME_RANDOMNESS_HIGH_BOUND_ID = "IdleTimeRandomnessHighBound";
+        public const string MAX_INTERACTION_DISTANCE_ID = "MaxInteractionDistance";
+        public const string MAX_INTERACTION_IDLE_PAGE_DISTANCE_ID = "MaxInteractionIdlePageDistance";
 
         private const int MIN_ITEMS_PER_PAGE_LARGE_MONITOR = 4;
         private const int MAX_ITEMS_PER_PAGE_LARGE_MONITOR = 28;
 
         private const int MIN_ITEMS_PER_PAGE_SMALL_MONITOR = 4;
         private const int MAX_ITEMS_PER_PAGE_SMALL_MONITOR = 21;
+
+        private const float MIN_IDLE_TIME = 5f;
+        private const float MAX_IDLE_TIME = 120f;
+        private const float MIN_IDLE_TIME_RANDOMNESS = 0f;
+        private const float MAX_IDLE_TIME_RANDOMNESS = 30f;
+        private const float MIN_INTERACTION_DISTANCE = 1f;
+        private const float MAX_INTERACTION_DISTANCE = 10f;
+        private const float MIN_IDLE_PAGE_DISTANCE = 1f;
+        private const float MAX_IDLE_PAGE_DISTANCE = 15f;
 
         public ResourceMonitorOptions() : base("Resource Monitor Redux")
         {
@@ -64,6 +80,63 @@ namespace ResourceMonitor
                 EntryPoint.SETTINGS.ItemsPerPageLargeMonitor,
                 tooltip: "How many items are shown per page on the large Resource Monitor Screen (default: 18)."));
 
+            AddItem(ModToggleOption.Create(
+                ALLOW_SELECTING_ITEMS_ID,
+                "Allow taking items from the screen",
+                EntryPoint.SETTINGS.AllowSelectingItemsFromMonitor,
+                "When enabled, clicking a tracked item on the screen takes one directly from storage (default: on)."));
+
+            AddItem(ModToggleOption.Create(
+                ENABLE_IDLE_ID,
+                "Enable idle screensaver",
+                EntryPoint.SETTINGS.EnableIdle,
+                "When enabled, the screen switches to an idle animation after a period of inactivity (default: on)."));
+
+            AddItem(ModSliderOption.Create(
+                IDLE_TIME_ID,
+                "Idle timeout (seconds)",
+                MIN_IDLE_TIME,
+                MAX_IDLE_TIME,
+                EntryPoint.SETTINGS.IdleTime,
+                valueFormat: "{0:F0}",
+                tooltip: "How many seconds of inactivity before the screen goes idle (default: 20)."));
+
+            AddItem(ModSliderOption.Create(
+                IDLE_TIME_RANDOMNESS_LOW_BOUND_ID,
+                "Idle timeout randomness (min)",
+                MIN_IDLE_TIME_RANDOMNESS,
+                MAX_IDLE_TIME_RANDOMNESS,
+                EntryPoint.SETTINGS.IdleTimeRandomnessLowBound,
+                valueFormat: "{0:F1}",
+                tooltip: "Minimum extra random seconds added to the idle timeout, so it doesn't trigger at exactly the same time every time (default: 1)."));
+
+            AddItem(ModSliderOption.Create(
+                IDLE_TIME_RANDOMNESS_HIGH_BOUND_ID,
+                "Idle timeout randomness (max)",
+                MIN_IDLE_TIME_RANDOMNESS,
+                MAX_IDLE_TIME_RANDOMNESS,
+                EntryPoint.SETTINGS.IdleTimeRandomnessHighBound,
+                valueFormat: "{0:F1}",
+                tooltip: "Maximum extra random seconds added to the idle timeout (default: 10)."));
+
+            AddItem(ModSliderOption.Create(
+                MAX_INTERACTION_DISTANCE_ID,
+                "Max interaction distance",
+                MIN_INTERACTION_DISTANCE,
+                MAX_INTERACTION_DISTANCE,
+                EntryPoint.SETTINGS.MaxInteractionDistance,
+                valueFormat: "{0:F1}",
+                tooltip: "How close you need to be to click the screen's buttons (default: 2.5)."));
+
+            AddItem(ModSliderOption.Create(
+                MAX_INTERACTION_IDLE_PAGE_DISTANCE_ID,
+                "Max idle wake-up distance",
+                MIN_IDLE_PAGE_DISTANCE,
+                MAX_IDLE_PAGE_DISTANCE,
+                EntryPoint.SETTINGS.MaxInteractionIdlePageDistance,
+                valueFormat: "{0:F1}",
+                tooltip: "How close you need to approach for the idle screensaver to wake back up (default: 5)."));
+
             OnChanged += Options_OnChanged;
         }
 
@@ -85,6 +158,12 @@ namespace ResourceMonitor
                     case SHOW_ZERO_AMOUNT_ELECTRONICS_ID:
                         EntryPoint.SETTINGS.ShowZeroAmountElectronics = toggleArgs.Value;
                         break;
+                    case ALLOW_SELECTING_ITEMS_ID:
+                        EntryPoint.SETTINGS.AllowSelectingItemsFromMonitor = toggleArgs.Value;
+                        break;
+                    case ENABLE_IDLE_ID:
+                        EntryPoint.SETTINGS.EnableIdle = toggleArgs.Value;
+                        break;
                     default:
                         return;
                 }
@@ -97,16 +176,34 @@ namespace ResourceMonitor
                 {
                     case ITEMS_PER_PAGE_SMALL_MONITOR_ID:
                         EntryPoint.SETTINGS.ItemsPerPageSmallMonitor = Mathf.RoundToInt(sliderArgs.Value);
-                        break;
+                        EntryPoint.SaveSettings();
+                        Components.ResourceMonitorDisplay.RefreshAllForItemsPerPageChange();
+                        return;
                     case ITEMS_PER_PAGE_LARGE_MONITOR_ID:
                         EntryPoint.SETTINGS.ItemsPerPageLargeMonitor = Mathf.RoundToInt(sliderArgs.Value);
+                        EntryPoint.SaveSettings();
+                        Components.ResourceMonitorDisplay.RefreshAllForItemsPerPageChange();
+                        return;
+                    case IDLE_TIME_ID:
+                        EntryPoint.SETTINGS.IdleTime = sliderArgs.Value;
+                        break;
+                    case IDLE_TIME_RANDOMNESS_LOW_BOUND_ID:
+                        EntryPoint.SETTINGS.IdleTimeRandomnessLowBound = sliderArgs.Value;
+                        break;
+                    case IDLE_TIME_RANDOMNESS_HIGH_BOUND_ID:
+                        EntryPoint.SETTINGS.IdleTimeRandomnessHighBound = sliderArgs.Value;
+                        break;
+                    case MAX_INTERACTION_DISTANCE_ID:
+                        EntryPoint.SETTINGS.MaxInteractionDistance = sliderArgs.Value;
+                        break;
+                    case MAX_INTERACTION_IDLE_PAGE_DISTANCE_ID:
+                        EntryPoint.SETTINGS.MaxInteractionIdlePageDistance = sliderArgs.Value;
                         break;
                     default:
                         return;
                 }
 
                 EntryPoint.SaveSettings();
-                Components.ResourceMonitorDisplay.RefreshAllForItemsPerPageChange();
             }
         }
     }
