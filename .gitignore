@@ -348,3 +348,8 @@ ResourceMonitor Unity Project/Library/
 # Do NOT ignore *.meta - Unity relies on them to keep asset GUIDs stable across clones.
 
 .vs/**
+
+# ==================================================== #
+# Locally-assembled release packages (rebuild anytime) #
+# ==================================================== #
+Release/
