@@ -33,8 +33,8 @@ namespace ResourceMonitor
             LoadAssets();
             SETTINGS = File.Exists(SETTINGS_FILE_LOCATION) ? LoadSettings() : CreateSettingsIfItDoesntExist();
 
-            Game_Items.ResourceMonitorScreenLarge.Register();
             Game_Items.ResourceMonitorScreenSmall.Register();
+            Game_Items.ResourceMonitorScreenLarge.Register();
 
             Nautilus.Handlers.OptionsPanelHandler.RegisterModOptions(new ResourceMonitorOptions());
 

@@ -6,7 +6,7 @@ namespace ResourceMonitor.Game_Items
     public static class ResourceMonitorScreenSmall
     {
         public const string CLASS_ID = "ResourceMonitorBuildableSmall";
-        public const string NICE_NAME = "Resource Monitor Screen Small";
+        public const string NICE_NAME = "Resource Monitor (Small)";
         public const string DESCRIPTION = "Track how many resources you have stored away in your sea base on one handy small screen.";
         public const string ICON_FILE_NAME = "ResourceMonitorSmall.png";
         public const int INGREDIENTS_REQUIRED = 1;
