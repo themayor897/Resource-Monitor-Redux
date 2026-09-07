@@ -15,10 +15,12 @@ namespace ResourceMonitor.Components
         {
             set
             {
-                if (EntryPoint.SETTINGS.AllowSelectingItemsFromMonitor)
-                    HoverText = "Take " + Language.main.Get(value);
-                else
-                    HoverText = Language.main.Get(value);
+                var name = ResourceMonitorLogic.GetSafeDisplayName(value);
+                HoverText = EntryPoint.SETTINGS.ItemManagementModeEnabled
+                    ? $"Stop tracking {name}"
+                    : EntryPoint.SETTINGS.AllowSelectingItemsFromMonitor
+                        ? $"Take {name}"
+                        : name;
 
                 type = value;
             }
@@ -27,7 +29,16 @@ namespace ResourceMonitor.Components
         public override void OnPointerClick(PointerEventData eventData)
         {
             base.OnPointerClick(eventData);
-            if (EntryPoint.SETTINGS.AllowSelectingItemsFromMonitor && IsHovered && ResourceMonitorDisplay != null && ResourceMonitorDisplay.ResourceMonitorLogic != null && type != TechType.None)
+            if (IsHovered == false || ResourceMonitorDisplay?.ResourceMonitorLogic == null || type == TechType.None)
+            {
+                return;
+            }
+
+            if (EntryPoint.SETTINGS.ItemManagementModeEnabled)
+            {
+                ResourceMonitorDisplay.ResourceMonitorLogic.HideItemType(type);
+            }
+            else if (EntryPoint.SETTINGS.AllowSelectingItemsFromMonitor)
             {
                 ResourceMonitorDisplay.ResourceMonitorLogic.AttemptToTakeItem(type);
             }

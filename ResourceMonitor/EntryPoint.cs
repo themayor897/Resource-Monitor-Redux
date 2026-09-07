@@ -38,6 +38,8 @@ namespace ResourceMonitor
 
             Nautilus.Handlers.OptionsPanelHandler.RegisterModOptions(new ResourceMonitorOptions());
 
+            gameObject.AddComponent<Components.ManagementModeIndicator>();
+
             Logger.LogInfo("Resource Monitor Redux loaded.");
         }
 

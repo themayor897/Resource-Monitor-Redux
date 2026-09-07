@@ -35,16 +35,46 @@ namespace ResourceMonitor.Components
             out _);
 
         /**
-        * Called when Mod Options > Resource Monitor > Items per page changes, so a screen already
-        * on screen picks up the new value immediately instead of only on its next natural redraw
-        * (changing pages, re-approaching it, etc).
+        * Called when a Mod Options change affects how the current page looks (items per page,
+        * sort order, compact display, hidden items), so a screen already on screen picks it up
+        * immediately instead of only on its next natural redraw (changing pages, re-approaching
+        * it, etc).
         */
-        public static void RefreshAllForItemsPerPageChange()
+        public static void RefreshAllDisplays()
         {
             foreach (var display in ActiveDisplays)
             {
                 display.DrawPage(display.currentPage);
             }
+        }
+
+        /**
+        * Called after Mod Options > Resource Monitor > Clear hidden items list, so previously
+        * hidden items reappear immediately instead of only once their container is next touched.
+        */
+        public static void RetrackPreviouslyHiddenItems(HashSet<string> keysToRetrack)
+        {
+            foreach (var display in ActiveDisplays)
+            {
+                display.ResourceMonitorLogic?.RetrackItems(keysToRetrack);
+            }
+
+            RefreshAllDisplays();
+        }
+
+        /**
+        * Called by ResourceMonitorLogic.ToggleContainerTrackingGlobally after the container
+        * exclusion list changes, so whichever active display actually owns that container (if
+        * any) picks up the change immediately.
+        */
+        public static void SyncContainerExclusionForAll(StorageContainer sc, bool excluded)
+        {
+            foreach (var display in ActiveDisplays)
+            {
+                display.ResourceMonitorLogic?.SyncContainerExclusion(sc, excluded);
+            }
+
+            RefreshAllDisplays();
         }
 
         private int ItemsPerPage => ResourceMonitorLogic.IsLargeMonitor
@@ -318,31 +348,33 @@ namespace ResourceMonitor.Components
             // them (e.g. just the icon, or just the name) breaks that arrangement at any other
             // scale, so all three need their position - not just their size - scaled together as
             // a single rigid group around that shared origin.
+            // In compact mode there's no name label below the icon, so it's re-centered (position
+            // scale 0 zeroes out the authored +20 offset that normally makes room for that label)
+            // instead of sitting off-center with empty space beneath it.
             var cappedCellSize = Mathf.Min(mainScreenItemGridLayout.cellSize.x, MaxIconCellSize);
             var iconScale = (cappedCellSize * ICON_FILL_RATIO) / ICON_CIRCLE_BASE_SIZE;
-            ScaleAboutOrigin((RectTransform)itemDisplay.transform.Find("IconCircle"), iconScale, iconScale);
-            ScaleAboutOrigin((RectTransform)itemDisplay.transform.Find("ItemHolder"), iconScale, iconScale);
+            var iconPositionScale = EntryPoint.SETTINGS.CompactDisplay ? 0f : iconScale;
+            ScaleAboutOrigin((RectTransform)itemDisplay.transform.Find("IconCircle"), iconScale, iconPositionScale);
+            ScaleAboutOrigin((RectTransform)itemDisplay.transform.Find("ItemHolder"), iconScale, iconPositionScale);
 
-            // The name's own text size still scales fully with the icon (stays legible/proportional),
-            // but its distance from the icon never shrinks below what's authored in Unity - only
-            // ever grows further out when the icon scales up past its base size. A pure
-            // proportional gap looks fine in Unity's static preview (which only ever shows scale 1)
-            // but reads as cramped once icons are actually scaled down below that at runtime.
-            var namePositionScale = Mathf.Max(iconScale, 1f);
-            ScaleAboutOrigin((RectTransform)itemDisplay.transform.Find("ItemName"), iconScale, namePositionScale);
+            var itemNameGameObject = itemDisplay.transform.Find("ItemName").gameObject;
+            if (EntryPoint.SETTINGS.CompactDisplay)
+            {
+                itemNameGameObject.SetActive(false);
+            }
+            else
+            {
+                // The name's own text size still scales fully with the icon (stays legible/proportional),
+                // but its distance from the icon never shrinks below what's authored in Unity - only
+                // ever grows further out when the icon scales up past its base size. A pure
+                // proportional gap looks fine in Unity's static preview (which only ever shows scale 1)
+                // but reads as cramped once icons are actually scaled down below that at runtime.
+                var namePositionScale = Mathf.Max(iconScale, 1f);
+                ScaleAboutOrigin((RectTransform)itemNameGameObject.transform, iconScale, namePositionScale);
+                itemNameGameObject.GetComponent<Text>().text = ResourceMonitorLogic.GetSafeDisplayName(type);
+            }
 
             itemDisplay.transform.Find("IconCircle/Text").GetComponent<Text>().text = "x" + amount;
-
-            string displayName;
-            try
-            {
-                displayName = Language.main.Get(type);
-            }
-            catch
-            {
-                displayName = type.AsString();
-            }
-            itemDisplay.transform.Find("ItemName").GetComponent<Text>().text = displayName;
 
             var itemButton = itemDisplay.AddComponent<ItemButton>();
             itemButton.Type = type;

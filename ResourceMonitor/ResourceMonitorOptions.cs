@@ -22,6 +22,18 @@ namespace ResourceMonitor
         public const string IDLE_TIME_RANDOMNESS_HIGH_BOUND_ID = "IdleTimeRandomnessHighBound";
         public const string MAX_INTERACTION_DISTANCE_ID = "MaxInteractionDistance";
         public const string MAX_INTERACTION_IDLE_PAGE_DISTANCE_ID = "MaxInteractionIdlePageDistance";
+        public const string SORT_ORDER_ID = "SortOrder";
+        public const string COMPACT_DISPLAY_ID = "CompactDisplay";
+        public const string CLEAR_HIDDEN_ITEMS_ID = "ClearHiddenItems";
+        public const string ITEM_MANAGEMENT_MODE_ID = "ItemManagementModeEnabled";
+        public const string CONTAINER_MANAGEMENT_MODE_ID = "ContainerManagementModeEnabled";
+
+        private static readonly string[] SORT_ORDER_CHOICES =
+        {
+            Components.ResourceMonitorLogic.SORT_ORDER_CATEGORY,
+            Components.ResourceMonitorLogic.SORT_ORDER_ALPHABETICAL,
+            Components.ResourceMonitorLogic.SORT_ORDER_QUANTITY,
+        };
 
         private const int MIN_ITEMS_PER_PAGE_LARGE_MONITOR = 4;
         private const int MAX_ITEMS_PER_PAGE_LARGE_MONITOR = 28;
@@ -137,6 +149,43 @@ namespace ResourceMonitor
                 valueFormat: "{0:F1}",
                 tooltip: "How close you need to approach for the idle screensaver to wake back up (default: 5)."));
 
+            AddItem(ModChoiceOption<string>.Create(
+                SORT_ORDER_ID,
+                "Sort order",
+                SORT_ORDER_CHOICES,
+                EntryPoint.SETTINGS.SortOrder,
+                tooltip: "Category (default) uses the hand-tuned tier order; Alphabetical and Quantity ignore tiers entirely."));
+
+            AddItem(ModToggleOption.Create(
+                COMPACT_DISPLAY_ID,
+                "Compact display (hide item names)",
+                EntryPoint.SETTINGS.CompactDisplay,
+                "Hides the name label under each icon so the screen reads less cluttered (default: off)."));
+
+            AddItem(ModButtonOption.Create(
+                CLEAR_HIDDEN_ITEMS_ID,
+                "Clear hidden items list",
+                _ =>
+                {
+                    var previouslyHidden = new System.Collections.Generic.HashSet<string>(EntryPoint.SETTINGS.HiddenItemTypes);
+                    EntryPoint.SETTINGS.HiddenItemTypes.Clear();
+                    EntryPoint.SaveSettings();
+                    Components.ResourceMonitorDisplay.RetrackPreviouslyHiddenItems(previouslyHidden);
+                },
+                "See Item management mode below. This brings everything on that list back immediately."));
+
+            AddItem(ModToggleOption.Create(
+                ITEM_MANAGEMENT_MODE_ID,
+                "Item management mode",
+                EntryPoint.SETTINGS.ItemManagementModeEnabled,
+                "While on, clicking an item on a Resource Monitor screen stops tracking it instead of taking it. A persistent on-screen reminder shows while this is active, and it turns back off automatically when you quit or exit to the main menu (default: off)."));
+
+            AddItem(ModToggleOption.Create(
+                CONTAINER_MANAGEMENT_MODE_ID,
+                "Container management mode",
+                EntryPoint.SETTINGS.ContainerManagementModeEnabled,
+                "While on, open a storage container and press H to toggle whether it's tracked. A persistent on-screen reminder shows while this is active, and both modes turn back off automatically when you quit or exit to the main menu (default: off)."));
+
             OnChanged += Options_OnChanged;
         }
 
@@ -164,11 +213,39 @@ namespace ResourceMonitor
                     case ENABLE_IDLE_ID:
                         EntryPoint.SETTINGS.EnableIdle = toggleArgs.Value;
                         break;
+                    case COMPACT_DISPLAY_ID:
+                        EntryPoint.SETTINGS.CompactDisplay = toggleArgs.Value;
+                        EntryPoint.SaveSettings();
+                        Components.ResourceMonitorDisplay.RefreshAllDisplays();
+                        return;
+                    case ITEM_MANAGEMENT_MODE_ID:
+                        EntryPoint.SETTINGS.ItemManagementModeEnabled = toggleArgs.Value;
+                        EntryPoint.SaveSettings();
+                        // Hover text ("Take X" vs "Stop tracking X") is set once per item when
+                        // its button is created, so it needs a redraw to reflect the mode change.
+                        Components.ResourceMonitorDisplay.RefreshAllDisplays();
+                        return;
+                    case CONTAINER_MANAGEMENT_MODE_ID:
+                        EntryPoint.SETTINGS.ContainerManagementModeEnabled = toggleArgs.Value;
+                        break;
                     default:
                         return;
                 }
 
                 EntryPoint.SaveSettings();
+            }
+            else if (e is ChoiceChangedEventArgs<string> choiceArgs)
+            {
+                switch (e.Id)
+                {
+                    case SORT_ORDER_ID:
+                        EntryPoint.SETTINGS.SortOrder = choiceArgs.Value;
+                        EntryPoint.SaveSettings();
+                        Components.ResourceMonitorDisplay.RefreshAllDisplays();
+                        return;
+                    default:
+                        return;
+                }
             }
             else if (e is SliderChangedEventArgs sliderArgs)
             {
@@ -177,12 +254,12 @@ namespace ResourceMonitor
                     case ITEMS_PER_PAGE_SMALL_MONITOR_ID:
                         EntryPoint.SETTINGS.ItemsPerPageSmallMonitor = Mathf.RoundToInt(sliderArgs.Value);
                         EntryPoint.SaveSettings();
-                        Components.ResourceMonitorDisplay.RefreshAllForItemsPerPageChange();
+                        Components.ResourceMonitorDisplay.RefreshAllDisplays();
                         return;
                     case ITEMS_PER_PAGE_LARGE_MONITOR_ID:
                         EntryPoint.SETTINGS.ItemsPerPageLargeMonitor = Mathf.RoundToInt(sliderArgs.Value);
                         EntryPoint.SaveSettings();
-                        Components.ResourceMonitorDisplay.RefreshAllForItemsPerPageChange();
+                        Components.ResourceMonitorDisplay.RefreshAllDisplays();
                         return;
                     case IDLE_TIME_ID:
                         EntryPoint.SETTINGS.IdleTime = sliderArgs.Value;
