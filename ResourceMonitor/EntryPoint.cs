@@ -61,9 +61,13 @@ namespace ResourceMonitor
                     string line;
                     while ((line = reader.ReadLine()) != null)
                     {
-                        if (string.IsNullOrEmpty(line) == false)
+                        var trimmed = line.Trim();
+                        // Lines starting with # are comments (the shipped file uses this for its
+                        // usage instructions) - not a real entry, so they're skipped rather than
+                        // treated as a container/item name to exclude.
+                        if (string.IsNullOrEmpty(trimmed) == false && trimmed.StartsWith("#") == false)
                         {
-                            Components.ResourceMonitorLogic.DONT_TRACK_GAMEOBJECTS.Add(line.ToLower());
+                            Components.ResourceMonitorLogic.DONT_TRACK_GAMEOBJECTS.Add(trimmed.ToLower());
                         }
                     }
                 }

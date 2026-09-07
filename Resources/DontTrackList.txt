@@ -1,0 +1,32 @@
+# Resource Monitor - Don't Track List
+#
+# Lines starting with # are comments and are ignored, as are blank lines -
+# it's safe to leave this whole block in place. Everything else is treated
+# as an active entry, one per line, matched case-insensitively.
+#
+# This file is read once, when the game starts. It's meant for permanent,
+# hand-authored exclusions that apply everywhere, in every base - it is
+# NOT the same thing as, and does not sync with, the in-game Item
+# management mode / Container management mode toggles (Mod Options >
+# Resource Monitor Redux). Those save their own choices to Settings.json
+# instead: Item management mode remembers specific item types you've
+# clicked off, and Container management mode remembers specific container
+# instances by a stable per-object ID (so excluding one locker never
+# affects another one that happens to share its name). Adding a name here
+# has no effect on those, and using those in-game has no effect on this
+# file - they're independent, on purpose.
+#
+# ## Exclude a whole container by name
+# Add part of its internal name. Any container whose name contains that
+# text anywhere (partial match) is skipped, in every base.
+#   Example: adding a line "planterpot" (without the quotes, and without
+#   the leading #) would ignore every container whose name contains
+#   "planterpot".
+#
+# ## Exclude a specific item everywhere
+# Add the item's internal TechType name (exact match, not partial).
+#   Example: adding a line "titanium" (without the quotes, and without
+#   the leading #) would stop Resource Monitor from ever tracking
+#   Titanium, no matter which container it's in.
+#
+# This file ships with no active entries. Add your own below this line.
