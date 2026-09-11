@@ -32,6 +32,11 @@ namespace ResourceMonitor.Game_Items
                 }
             });
             prefab.Register();
+
+            // Without this, the recipe has no fragment/scan requirement AND no explicit unlock,
+            // so in Survival/Hardcore there's simply no path that ever marks it as known - Creative
+            // mode ignores PDA unlock state entirely for crafting, which is why this went unnoticed.
+            Nautilus.Handlers.KnownTechHandler.UnlockOnStart(info.TechType);
         }
 
         private static GameObject BuildGameObject(PrefabInfo info, Vector3? scale, bool isLarge)
