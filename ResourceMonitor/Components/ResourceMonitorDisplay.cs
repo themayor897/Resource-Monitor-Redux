@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -102,7 +103,7 @@ namespace ResourceMonitor.Components
         private GameObject previousPageGameObject;
         private GameObject nextPageGameObject;
         private GameObject pageCounterGameObject;
-        private Text pageCounterText;
+        private TextMeshProUGUI pageCounterText;
         private GameObject idleScreen;
 
         public void Setup(ResourceMonitorLogic rml)
@@ -175,7 +176,7 @@ namespace ResourceMonitor.Components
         {
             if (newAmount > 0 && trackedResourcesDisplayElements.ContainsKey(type))
             {
-                trackedResourcesDisplayElements[type].GetComponentInChildren<Text>().text = "x" + newAmount;
+                trackedResourcesDisplayElements[type].GetComponentInChildren<TextMeshProUGUI>().text = "x" + newAmount;
                 return;
             }
 
@@ -325,6 +326,7 @@ namespace ResourceMonitor.Components
             rect.anchoredPosition *= positionScale;
         }
 
+
         private void ClearPage()
         {
             for (int i = 0; i < mainScreenItemGrid.transform.childCount; i++)
@@ -371,10 +373,10 @@ namespace ResourceMonitor.Components
                 // but reads as cramped once icons are actually scaled down below that at runtime.
                 var namePositionScale = Mathf.Max(iconScale, 1f);
                 ScaleAboutOrigin((RectTransform)itemNameGameObject.transform, iconScale, namePositionScale);
-                itemNameGameObject.GetComponent<Text>().text = ResourceMonitorLogic.GetSafeDisplayName(type);
+                itemNameGameObject.GetComponent<TextMeshProUGUI>().text = ResourceMonitorLogic.GetSafeDisplayName(type);
             }
 
-            itemDisplay.transform.Find("IconCircle/Text").GetComponent<Text>().text = "x" + amount;
+            itemDisplay.transform.Find("IconCircle/Text").GetComponent<TextMeshProUGUI>().text = "x" + amount;
 
             var itemButton = itemDisplay.AddComponent<ItemButton>();
             itemButton.Type = type;
@@ -608,7 +610,7 @@ namespace ResourceMonitor.Components
                 return false;
             }
 
-            pageCounterText = pageCounterGameObject.GetComponent<Text>();
+            pageCounterText = pageCounterGameObject.GetComponent<TextMeshProUGUI>();
             if (pageCounterText == null)
             {
                 System.Console.WriteLine("[ResourceMonitor] Screen: Page Counter Text not found.");
