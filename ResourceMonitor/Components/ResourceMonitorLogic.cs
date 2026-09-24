@@ -580,7 +580,6 @@ namespace ResourceMonitor.Components
                         {
                             if (Inventory.main.Pickup(pickup))
                             {
-                                CrafterLogic.NotifyCraftEnd(Player.main.gameObject, item);
                                 if (beforeRemoveAmount == 1)
                                 {
                                     timerTillNextPickup = COOLDOWN_TIME_BETWEEN_PICKING_UP_LAST_ITEM_TYPE;
