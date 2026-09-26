@@ -14,7 +14,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 
-    <Version>2.0.4</Version>
+    <Version>2.0.3</Version>
     <Product>Resource Monitor Redux</Product>
     <Authors>WaisieMilliams, themayor897</Authors>
     <Copyright>Copyright © 2018, 2026</Copyright>

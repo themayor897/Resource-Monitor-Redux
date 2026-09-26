@@ -354,6 +354,7 @@ ResourceMonitor Unity Project/Library/
 # ==================================================== #
 Release/
 deploy-test.bat
+build-release.bat
 
 # Unity regenerates these for code editors whenever the project changes; they hold machine-specific paths.
 ResourceMonitor Unity Project/*.csproj
