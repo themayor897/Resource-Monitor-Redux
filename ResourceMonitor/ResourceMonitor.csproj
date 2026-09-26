@@ -14,10 +14,10 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 
-    <Version>1.0.6</Version>
+    <Version>2.0.4</Version>
     <Product>Resource Monitor Redux</Product>
-    <Authors>WaisieMilliams</Authors>
-    <Copyright>Copyright © 2018</Copyright>
+    <Authors>WaisieMilliams, themayor897</Authors>
+    <Copyright>Copyright © 2018, 2026</Copyright>
 
     <!-- Nautilus/GameLibs are published to nuget.org, but restoring from the BepInEx feed as a
          fallback avoids failures if a package is ever only mirrored there. -->
@@ -40,11 +40,11 @@
        copied into our output folder, since it's expected to already be installed as its own
        BepInEx plugin (we still compile against it normally). -->
   <ItemGroup Condition=" '$(Configuration)' == 'SN' ">
-    <PackageReference Include="Subnautica.Nautilus" Version="1.0.0-pre.53" ExcludeAssets="runtime" />
+    <PackageReference Include="Subnautica.Nautilus" Version="1.0.0-pre.54" ExcludeAssets="runtime" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'BZ' ">
-    <PackageReference Include="SubnauticaZero.Nautilus" Version="1.0.0-pre.51" ExcludeAssets="runtime" />
+    <PackageReference Include="SubnauticaZero.Nautilus" Version="1.0.0-pre.54" ExcludeAssets="runtime" />
   </ItemGroup>
 
 </Project>

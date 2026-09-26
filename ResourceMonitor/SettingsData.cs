@@ -31,6 +31,10 @@ namespace ResourceMonitor
         // a player has excluded via container management mode.
         public List<string> ExcludedContainerIds = new List<string>();
 
+        // Extends the monitor's collider forward so the builder tool keeps targeting it (rather
+        // than the window behind it) when the Building Tweaks mod lets it be placed overlapping one.
+        public bool BuildingTweaksCompatibility = false;
+
         // Also editable in-game via Mod Options > Resource Monitor.
         public bool ShowZeroAmountRawMaterials = true;
         public bool ShowZeroAmountBasicMaterials = false;

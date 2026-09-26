@@ -8,11 +8,11 @@ using UnityEngine;
 namespace ResourceMonitor
 {
     [BepInPlugin(GUID, "Resource Monitor Redux", VERSION)]
-    [BepInDependency("com.snmodding.nautilus")]
+    [BepInDependency("com.snmodding.nautilus", "1.0.0.54")]
     public class EntryPoint : BaseUnityPlugin
     {
         public const string GUID = "taylor.brett.ResourceMonitor.mod";
-        public const string VERSION = "2.0.0";
+        public const string VERSION = "2.0.4";
 
         public static readonly string MOD_FOLDER_LOCATION = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static readonly string ASSETS_FOLDER_LOCATION = Path.Combine(MOD_FOLDER_LOCATION, "Assets");

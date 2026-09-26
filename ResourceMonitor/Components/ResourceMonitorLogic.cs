@@ -41,6 +41,42 @@ namespace ResourceMonitor.Components
         private bool isEnabled = false;
         private bool runStartUpOnEnable = false;
 
+        // How much deeper the collider gets toward the viewer with Building Tweaks compatibility on.
+        // Local units, and the root's Z scale is 1 for both sizes, so this is metres. The viewer is on
+        // local +Z (the canvas sits at +Z with a mirrored X scale) - flip the sign here if a test shows
+        // the extension growing into the wall instead.
+        private const float BUILDING_TWEAKS_EXTRA_COLLIDER_DEPTH = 0.05f;
+
+        private void Awake()
+        {
+            if (EntryPoint.SETTINGS.BuildingTweaksCompatibility)
+            {
+                ExtendColliderForward();
+            }
+        }
+
+        /**
+        * The builder tool targets whichever collider is closest along your aim ray. Building Tweaks
+        * bypasses vanilla's overlap checks, so a monitor can end up sharing space with a window whose
+        * collider then wins that race, and the builder drops the monitor for a deconstruct prompt. This
+        * grows the box toward the viewer while keeping its back face where it was, so it's hit first.
+        */
+        private void ExtendColliderForward()
+        {
+            var box = GetComponent<BoxCollider>();
+            if (box == null)
+            {
+                return;
+            }
+
+            var size = box.size;
+            var center = box.center;
+            size.z += BUILDING_TWEAKS_EXTRA_COLLIDER_DEPTH;
+            center.z += BUILDING_TWEAKS_EXTRA_COLLIDER_DEPTH / 2f;
+            box.size = size;
+            box.center = center;
+        }
+
         private IEnumerator Startup()
         {
             if (IsBeingDeleted == true) yield break;

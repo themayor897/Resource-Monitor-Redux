@@ -27,6 +27,7 @@ namespace ResourceMonitor
         public const string CLEAR_HIDDEN_ITEMS_ID = "ClearHiddenItems";
         public const string ITEM_MANAGEMENT_MODE_ID = "ItemManagementModeEnabled";
         public const string CONTAINER_MANAGEMENT_MODE_ID = "ContainerManagementModeEnabled";
+        public const string BUILDING_TWEAKS_COMPATIBILITY_ID = "BuildingTweaksCompatibility";
 
         private static readonly string[] SORT_ORDER_CHOICES =
         {
@@ -186,6 +187,12 @@ namespace ResourceMonitor
                 EntryPoint.SETTINGS.ContainerManagementModeEnabled,
                 "While on, open a storage container and press H to toggle whether it's tracked. A persistent on-screen reminder shows while this is active, and both modes turn back off automatically when you quit or exit to the main menu (default: off)."));
 
+            AddItem(ModToggleOption.Create(
+                BUILDING_TWEAKS_COMPATIBILITY_ID,
+                "Building Tweaks window compatibility",
+                EntryPoint.SETTINGS.BuildingTweaksCompatibility,
+                "Makes the collision box deeper in the front so you can use the Building Tweaks mod to build a monitor on a window in your base. Applies to monitors placed or loaded after changing it (default: off)."));
+
             OnChanged += Options_OnChanged;
         }
 
@@ -227,6 +234,9 @@ namespace ResourceMonitor
                         return;
                     case CONTAINER_MANAGEMENT_MODE_ID:
                         EntryPoint.SETTINGS.ContainerManagementModeEnabled = toggleArgs.Value;
+                        break;
+                    case BUILDING_TWEAKS_COMPATIBILITY_ID:
+                        EntryPoint.SETTINGS.BuildingTweaksCompatibility = toggleArgs.Value;
                         break;
                     default:
                         return;
