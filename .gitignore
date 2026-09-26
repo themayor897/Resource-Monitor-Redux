@@ -353,3 +353,8 @@ ResourceMonitor Unity Project/Library/
 # Locally-assembled release packages (rebuild anytime) #
 # ==================================================== #
 Release/
+deploy-test.bat
+
+# Unity regenerates these for code editors whenever the project changes; they hold machine-specific paths.
+ResourceMonitor Unity Project/*.csproj
+ResourceMonitor Unity Project/*.sln

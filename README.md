@@ -34,4 +34,6 @@ Both work the same way: place one inside a base or vehicle (including the Cyclop
 3. Build the `SN` configuration for Subnautica or the `BZ` configuration for Below Zero, e.g. `dotnet build -c SN`.
 4. Copy the built `ResourceMonitor.dll`, along with an `Assets` folder containing the `resources` asset bundle and the icon PNGs from [`Resources`](Resources), into `BepInEx/plugins/ResourceMonitor/`.
 
-Thank you to https://github.com/RandyKnapp. The code used to create a canvas in 3D world space on top of the model is his.
+#### Credits
+* Based on the original [Resource Monitor](https://www.nexusmods.com/subnautica/mods/166) by Brett Taylor (WaisieMilliams), used under the MIT license - see [LICENSE](LICENSE).
+* Thank you to https://github.com/RandyKnapp. The code used to create a canvas in 3D world space on top of the model is his.
